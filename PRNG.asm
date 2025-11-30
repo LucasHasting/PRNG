@@ -234,7 +234,7 @@ LoadTable:
         LDA TABLE,X		    ; load table into X addr
         STA $00,X		    ; store into 00 + X 
         INX			        ; increment X addr
-        CPX #$f0		   ; compare to f0
+        CPX #$f0		   	; compare to f0
         BNE L1			    ; go until X=7F
     PLX             ; get x back
     RTS             ; end proceduue
