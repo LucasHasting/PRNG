@@ -21,10 +21,10 @@
 ;
 ;-------------------------------------------------------------------------------
 
-		.include "..\example\w65c02.inc"
-		.include "..\example\w65c21.inc"
-		.include "..\example\w65c22.inc"
-		.include "..\example\w65c51.inc"
+		.include "w65c02.inc"
+		.include "w65c21.inc"
+		.include "w65c22.inc"
+		.include "w65c51.inc"
 
 ;===============================================================================
 ; Configuration
