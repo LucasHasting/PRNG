@@ -7,9 +7,10 @@ This repository contains a project to create a Pseudo-Random Number Generator on
 
 | File      | Description                                                   |
 |---|---|
-| w65c*.inc | Libraries.                                                    |
-| PRNG.asm  | File containing the PRNG procedures with an example driver.   |
-| table.py  | Script to create a table from a LCG.                          |
+| w65c*.inc  | Libraries.                                                      |
+| PRNG.asm   | File containing the PRNG procedures with an example driver.     |
+| PRNG.SREC  | SREC for compiled PRNG.asm file.                                |
+| table.py   | Script to create a table from a LCG.                            |
 
 ## Sources and Notes
 
@@ -31,3 +32,4 @@ JSR NEXT
 
 
 For a more detailed example, checkout the PRNG.asm file's application code.
+
