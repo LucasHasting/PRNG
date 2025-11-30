@@ -38,7 +38,10 @@ PTR		.space	2
 
                 .org	$0410		; limit is $6FFF
 
-;The driver to demonstrate the PRNG	
+; Description:  Example PRNG usage
+; INPUT:        NONE
+; OUTPUT:       addresses (0000 - 007f) -> the table for the LCG
+
 PRNG:
     ;Display a new line to start
     JSR displayNewLine
@@ -47,51 +50,81 @@ PRNG:
     LDY #0
     JSR SRAND
 
-    ;display X random numbers
+    ;display 3 random numbers
     JSR NEXT
-    JSR bn2hex
+    JSR BIN2HEX
     JSR displayNewLine
 
     JSR NEXT
-    JSR bn2hex
+    JSR BIN2HEX
     JSR displayNewLine
 
     JSR NEXT
-    JSR bn2hex
+    JSR BIN2HEX
+    JSR displayNewLine
+
+    ;seed with specefic value
+    LDY #$f5
+    JSR SRAND
+
+    ;display 3 random numbers from set seed
+    JSR NEXT
+    JSR BIN2HEX
     JSR displayNewLine
 
     JSR NEXT
-    JSR bn2hex
+    JSR BIN2HEX
     JSR displayNewLine
 
     JSR NEXT
-    JSR bn2hex
+    JSR BIN2HEX
     JSR displayNewLine
     
     BRK  ;END
 
-;INPUT: Y=0 => defualt, Y is a seed for the PRNG
+;===============================================================================
+; SRAND
+;-------------------------------------------------------------------------------
+
+; Description:  Seeds and inits the PRNG
+; INPUT:        Y=0 => defualt, Y is a seed for the PRNG
+; OUTPUT:       addresses (0000 - 007f) -> the table for the LCG
+
 SRAND:
-    ;
     JSR LoadTable       ;load the table into zero page (0000 - 007f)
     CPY #0              ;compare y register with 0
     BNE end_srand
-    LDY $040B           ;default seed location
+    LDY $040B           ;default seed location 
+                        ; - roughly uniformly random, hardware related
 
     ;reduce y register to modulo $7f and return
     end_srand:
-    JSR reduceY
+        JSR reduceY
     RTS
 
-;INPUT:  Y - an index in the table of random numbers
-;OUTPUT: Y - the next index in the table of random numbers
-;        A - the random number at the inital index of Y
+;===============================================================================
+; NEXT
+;-------------------------------------------------------------------------------
+
+; Description:  Get's the next random number in the LCG table
+; INPUT:        Y - an index in the table of random numbers
+; OUTPUT:       A - the random number at the inital index of Y
+;               Y - the next index in the table of random numbers     
+
 NEXT:
     LDA $00,Y   ;load table value in A
     JSR Count   ;Increase Y
     RTS         ;END
 
-;INPUT: Y - reduce y to 
+;===============================================================================
+; reduceY
+;-------------------------------------------------------------------------------
+
+; Description:  Get's the next random number in the LCG table
+; INPUT:        Y - an index for the table of random numbers
+;                   (can be outside the range)
+; OUTPUT:       Y - an index in the table of random numbers
+
 reduceY:
     ;Check if Y is >= $80, if so, subtract $7f until true
     PHA
@@ -103,16 +136,24 @@ reduceY:
     RTS
 
 
+;===============================================================================
+; displayNewLine
+;-------------------------------------------------------------------------------
+
+; Description:  Uses UartTx to display a new line character
+; INPUT:        NONE
+; OUTPUT:       NONE
+
 ;procedure to display a new line
 displayNewLine:
     PHA
-    LDA #10 ;Newline ASCII Character
+    LDA #10     ;Newline ASCII Character
     JSR UartTx 
     PLA
     RTS         ;END
 
 ;===============================================================================
-; UART I/O
+; UART I/O - FROM EXAMPLE - UNTOUCHED
 ;-------------------------------------------------------------------------------
 
 ; Inserts the byte in A into the transmit buffer. If the buffer is full then
@@ -140,40 +181,14 @@ L2:		BIT    VIA2_IRB
 		PLA
 		RTS			; Done
 
-; Extracts the next character from the head of the RX buffer. If the buffer is
-; empty then wait for some data to be placed in it by the interrupt handler.
-
-UartRx:
-                PHX                     ; Save callers X
-		
-                LDA     #$02            ; Wait until data in buffer
-L3:		JSR Count
-                BIT    VIA2_IRB
-		BNE L3
-
-		STZ	VIA2_DDRA	; Make port all input
-                LDA     VIA2_IRB
-                LDA     #$08        	; Strobe /RD low
-		TRB	VIA2_ORB
-		NOP			; Wait for data to be available
-		NOP
-		NOP
-		NOP
-		LDX	VIA2_IRA        ; Read it
-                TSB     VIA2_ORB	; And end the strobe
-		TXA
-                PLX                     ; .. and callers X
-		RTS			; Done
-
-;		.end
-
 ;===============================================================================
-; bn2hex
+; BIN2HEX
 ;-------------------------------------------------------------------------------
 
-; Uses UART I/O to display a byte in memory
-
-bn2hex:
+; Description:  Uses UART I/O to display a byte in memory
+; INPUT:        A - register to display using UartTx
+; OUTPUT:       NONE
+BIN2HEX:
     PHA                  ;save A
 
     ;get high nibble
@@ -199,22 +214,31 @@ bn2hex:
 ; LoadTable
 ;-------------------------------------------------------------------------------
 
-;--Load a table into memory (addresses 0000 - 007f)
+; Description:  Load a table into memory (addresses 0000 - 007f),
+;               does not perserve contents in memory.
+; INPUT:        NONE
+; OUTPUT:       NONE
 LoadTable:
-    LDX #0 	    ; x is index register
+    PHX             ; save x
+    LDX #0 	        ; x is index register
     L1:	            ; LOOP    
         LDA TABLE,X		    ; load table into X addr
         STA $00,X		    ; store into 00 + X 
         INX			        ; increment X addr
-        CPX #128		   ; compare to f0
+        CPX #$f0		   ; compare to f0
         BNE L1			    ; go until X=7F
+    PLX             ; get x back
     RTS             ; end proceduue
 
 ;===============================================================================
 ; LetterShift
 ;-------------------------------------------------------------------------------
 
-;--Shift for when A-REG is greater than 10 - used for displaying a byte
+; Description:  Shift for when A is greater than 10,
+;               used for displaying a byte
+; INPUT:        A, reg to shift (if needed)
+; OUTPUT:       A, shifted if needed
+
 LetterShift:
     ;Check if A is <= 9, if so, end
     CMP #$3A
@@ -236,7 +260,10 @@ LetterShift:
 ; Count
 ;-------------------------------------------------------------------------------
 
-;--Count Y cyclically (bounds in 0000 - 007f - same as table)
+; Description:  Count Y cyclically (bounds in 0000 - 007f - same as table)
+; INPUT:        Y, reg to increment (table index)
+; OUTPUT:       Y, incremented cyclically
+
 Count:
     ;INC Y - Count Up
     INY
@@ -251,7 +278,7 @@ Count:
         RTS ; end procedure
 
 ;===============================================================================
-; TABLE - Linear Congruential Generator
+; TABLE - Linear Congruential Generator - See Table.py 
 ;-------------------------------------------------------------------------------
 
 TABLE: 	

@@ -1,5 +1,5 @@
 # Assemble program for W65C02SXB board
-AS=C:\Users\rebel\Documents\sxb\vasm6502\vasm6502_oldstyle\win\win10\vasm6502_oldstyle.exe
+AS=<vasm old style directory>
 ASFLAGS= -chklabels -dotdir -wdc02
 SRC=PRNG.asm
 ROM==PRNG.bin
@@ -23,4 +23,3 @@ view: $(ROM)
 
 clean:
 	@rm -f $(ROM) $(SREC) listing.out
-
