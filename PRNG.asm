@@ -1,3 +1,12 @@
+;Name: Lucas Hasting
+;Class: CS 490
+;Date: 12/3/2025
+;Instructor: Dr. Jerkins
+;Description: Procedures for a PRNG on an 8-bit computer (w65c02sxb)
+;Source: https://6502.org/
+;        Starter code: https://github.com/andrew-jacobs/w65c02sxb-monitor/
+;        Example code by Dr. Jerkins
+
 ;===============================================================================
 ;
 ; Change this to what ever you need.
@@ -278,11 +287,11 @@ Count:
         RTS ; end procedure
 
 ;===============================================================================
-; TABLE - Linear Congruential Generator - See Table.py 
+; TABLE - Linear Congruential Generator - See table.py 
 ;-------------------------------------------------------------------------------
 
 TABLE: 	
-    .BYTE $41,$23,$20,$80
+    .BYTE $41,$23,$20,$08
     .BYTE $17,$e4,$6b,$5a
     .BYTE $39,$23,$ca,$ed
     .BYTE $56,$01,$1f,$97
@@ -298,19 +307,19 @@ TABLE:
     .BYTE $79,$2f,$6d,$0e
     .BYTE $61,$f5,$d4,$16
     .BYTE $26,$c8,$ef,$50
-    .BYTE $bd,$5f,$5e,$20
+    .BYTE $bd,$5f,$5e,$02
     .BYTE $42,$12,$8f,$e9
     .BYTE $4f,$41,$83,$50
     .BYTE $51,$b9,$2a,$87
     .BYTE $4b,$8f,$4b,$1d
     .BYTE $65,$89,$4e,$68
     .BYTE $3b,$d4,$3e,$e3
-    .BYTE $97,$88,$1b,$c0
+    .BYTE $97,$88,$1b,$0c
     .BYTE $44,$13,$92,$de
     .BYTE $5f,$23,$a8,$e5
     .BYTE $59,$18,$93,$d8
     .BYTE $67,$c9,$d3,$c3
     .BYTE $50,$f7,$a9,$46
     .BYTE $52,$31,$b7,$ee
-    .BYTE $a0,$e5,$ef,$5
+    .BYTE $a0,$e5,$ef,$05
     .BYTE $1d,$0b,$32,$d6
