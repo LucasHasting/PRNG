@@ -49,7 +49,7 @@ PTR		.space	2
 
 ; Description:  Example PRNG usage
 ; INPUT:        NONE
-; OUTPUT:       addresses (0000 - 007f) -> the table for the LCG
+; OUTPUT:       addresses (0000 - 007f) -> the table for the LCG, Y and A are not preserved
 
 PRNG:
     ;Display a new line to start
@@ -335,3 +335,4 @@ TABLE:
     .BYTE $52,$31,$b7,$ee
     .BYTE $a0,$e5,$ef,$05
     .BYTE $1d,$0b,$32,$d6
+
