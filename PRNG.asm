@@ -73,7 +73,7 @@ PRNG:
     JSR displayNewLine
 
     ;seed with specefic value
-    LDY #$f5
+    LDY #$f8
     JSR SRAND
 
     ;display 3 random numbers from set seed
@@ -109,7 +109,7 @@ SRAND:
     ;reduce y register to modulo $7f and return
     end_srand:
         JSR reduceY
-    RTS
+        RTS
 
 ;===============================================================================
 ; NEXT
@@ -135,14 +135,26 @@ NEXT:
 ; OUTPUT:       Y - an index in the table of random numbers
 
 reduceY:
-    ;Check if Y is >= $80, if so, subtract $7f until true
-    PHA
+    PHA                 ;save A
+    TYA                 ;move contents of Y to A
+
+    ;if good, go to end of procedure
+    CMP #$80
+    BCC End_reduce
+
+    ;keep subtracting until good
     Loop:
-        CMP #$7f
+        ;subtract
+        SEC
         SBC #$7f
+
+        ;check if keep looping 
+        CMP #$7f
         BCS Loop
-    PLA
-    RTS
+    End_reduce:
+        TAY             ;move contents of A to Y
+        PLA             ;get A back
+        RTS             ;end
 
 
 ;===============================================================================
